@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/data/jpa
+        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd"
+	default-lazy-init="true">
+
+	<!-- Ativa recursos automáticos no Spring como Injeção de Dependecia por anotações -->
+	<context:annotation-config/>
+	<context:component-scan base-package="spring.data.model"/>
+	
+	<!-- Define a conexão com o banco de dados -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		
+		<property name="driverClassName" value="org.postgresql.Driver"/>
+		<property name="url" value="jdbc:postgresql://localhost:5432/bdspringdata"/>
+		<property name="username" value="postgres"/>
+		<property name="password" value="admin"/>
+	</bean>
+	
+	<!-- Define as configurações do JPA -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" scope="singleton">
+		
+	<property name="dataSource" ref="dataSource"/><!--(ref="dataSource") referencia banco de dados acima-->
+	<property name="jpaVendorAdapter">
+		<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+			<property name="database" value="POSTGRESQL"/>
+			<property name="generateDdl" value="true"/><!-- Gerar as tabelas no banco -->
+		</bean>
+	</property>
+	<property name="persistenceUnitName" value="spring-data"/><!-- referencia ao id do arquivo persistence.xml -->
+	</bean>
+	
+	<!-- Ativa o controle Transacional -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager" scope="singleton">
+	
+	<property name="entityManagerFactory" ref="entityManagerFactory"/><!--(ref="entityManagerFactory") referencia entityManager acima-->
+	</bean>
+	
+	<!-- Ativa os recursos para os Repository -->
+	<jpa:repositories base-package="spring.data.dao"/>
+</beans>
